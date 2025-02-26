@@ -32,6 +32,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler('add', add))
     dispatcher.add_handler(CommandHandler('help', help_command))
+    dispatcher.add_handler(CommandHandler('set', set_command))
     dispatcher.add_handler(CommandHandler('get', get))
     dispatcher.add_handler(CommandHandler('delete', delete))
     dispatcher.add_handler(chatgpt_handler)
@@ -58,6 +59,18 @@ def add(update, context: CallbackContext) -> None:
         update.message.reply_text("You have said " + msg + " for " + redis1.get(msg) + " times.")
     except (IndexError, ValueError):
         update.message.reply_text("Usage: /add <keyword>")
+
+def set_command(update, context: CallbackContext) -> None:
+    try:
+        global redis1
+        logging.info(context.args)
+        msg = context.args[0]
+        times = context.args[1]
+        redis1.set(msg, times)
+
+        update.message.reply_text("You have set " + msg + " for " + times + " times.")
+    except (IndexError, ValueError):
+        update.message.reply_text("Usage: /set <keyword> <times>")
 
 def get(update, context: CallbackContext) -> None:
     try:

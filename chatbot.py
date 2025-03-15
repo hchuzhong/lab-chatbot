@@ -1,33 +1,28 @@
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-import configparser
 import logging
 import redis
 from ChatGPT_HKBU import HKBU_ChatGPT
+import os
 
 global redis1
 def main():
-    # Load your token and create an Updater for your Bot
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    token = config['TELEGRAM']['ACCESS_TOKEN']
+    token = os.getenv('TELEGRAM_ACCESS_TOKEN')
     updater = Updater(token=token, use_context=True)
     dispatcher = updater.dispatcher
 
     global redis1
-    redis1 = redis.Redis(host=(config['REDIS']['HOST']),
-                        password=(config['REDIS']['PASSWORD']),
-                        port=(config['REDIS']['REDISPORT']),
-                        decode_responses=(config['REDIS']['DECODE_RESPONSES']),
-                        username=(config['REDIS']['USER_NAME']))
+    redis1 = redis.Redis(host=(os.getenv('REDIS_HOST')),
+                        password=(os.getenv('REDIS_PASSWORD')),
+                        port=(os.getenv('REDIS_PORT')),
+                        decode_responses=(os.getenv('REDIS_DECODE_RESPONSES')),
+                        username=(os.getenv('REDIS_USER_NAME')))
 
     # Enable logging
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-    echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
-    # dispatcher.add_handler(echo_handler)
 
     global chatgpt
-    chatgpt = HKBU_ChatGPT(config)
+    chatgpt = HKBU_ChatGPT()
     chatgpt_handler = MessageHandler(Filters.text & (~Filters.command), equip_chatgpt)
 
     dispatcher.add_handler(CommandHandler('add', add))

@@ -1,21 +1,22 @@
-import configparser
 import requests
+import os
 
 class HKBU_ChatGPT():
-  def __init__(self, config_='./config.ini'):
-    if type(config_) == str:
-      self.config = configparser.ConfigParser()
-      self.config.read(config_)
-    elif type(config_) == configparser.ConfigParser:
-      self.config = config_
+  def __init__(self):
+    self.config = {
+      'CHATGPT_BASICURL': os.getenv('CHATGPT_BASICURL'),
+      'CHATGPT_MODELNAME': os.getenv('CHATGPT_MODELNAME'),
+      'CHATGPT_APIVERSION': os.getenv('CHATGPT_APIVERSION'),
+      'CHATGPT_ACCESS_TOKEN': os.getenv('CHATGPT_ACCESS_TOKEN')
+    }
 
   def submit(self, message):
     conversation = [{"role": "user", "content": message}]
 
-    url = (self.config['CHATGPT']['BASICURL']) + "/deployments/" + (self.config['CHATGPT']['MODELNAME']) + "/chat/completions/?api-version=" + (self.config['CHATGPT']['APIVERSION'])
+    url = (self.config['CHATGPT_BASICURL']) + "/deployments/" + (self.config['CHATGPT_MODELNAME']) + "/chat/completions/?api-version=" + (self.config['CHATGPT_APIVERSION'])
 
     headers = {
-        'api-key': (self.config['CHATGPT']['ACCESS_TOKEN']),
+        'api-key': (self.config['CHATGPT_ACCESS_TOKEN']),
         'Content-Type': 'application/json'
     }
     payload = { "messages": conversation }
@@ -34,35 +35,3 @@ if __name__ == "__main__":
     user_input = input("Typing anything to ChatGPT:\t")
     response = chatgpt.submit(user_input)
     print(response)
-
-
-# import configparser
-# import requests
-
-# class HKBU_ChatGPT():
-#   def __init__(self,config_='./config.ini'):
-#     if type(config_) == str:
-#       self.config = configparser.ConfigParser()
-#       self.config.read(config_)
-#     elif type(config_) == configparser.ConfigParser:
-#       self.config = config_
-
-#   def submit(self,message):
-#     conversation = [{"role": "user", "content": message}]
-#     url = (self.config['CHATGPT']['BASICURL']) + "/deployments/" + (self.config['CHATGPT']['MODELNAME']) + "/chat/completions/?api-version=" + (self.config['CHATGPT']['APIVERSION'])
-#     headers = { 'Content-Type': 'application/json',
-#     'api-key': (self.config['CHATGPT']['ACCESS_TOKEN']) }
-#     payload = { 'messages': conversation }
-#     response = requests.post(url, json=payload, headers=headers)
-#     if response.status_code == 200:
-#       data = response.json()
-#       return data['choices'][0]['message']['content']
-#     else:
-#       return 'Error:', response
-
-# if __name__ == '__main__':
-#   ChatGPT_test = HKBU_ChatGPT()
-#   while True:
-#     user_input = input("Typing anything to ChatGPT:\t")
-#     response = ChatGPT_test.submit(user_input)
-#     print(response)
